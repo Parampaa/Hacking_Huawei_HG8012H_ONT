@@ -1132,7 +1132,7 @@ After:
 
 Now we have to do the reverse step with these files, that is, re-encrypt them and replace the original files with the new ones that we have modified. To re-encrypt the modified files we use the command:
 ```console
-logon@logonlap:~$aescrypt2_huawei 0 INPUT_FILE OUTPUT_FILE
+aescrypt2_huawei 0 INPUT_FILE OUTPUT_FILE
 ```
 
 Now we focus on the files we marked in pink on the JFFS2 file system tree. These files are not encrypted, so its modification is much easier. As I explained previously, what we are looking for by editing them is to establish with it the ONT as universal without the personalization, in this case, of Vodafone Portugal. These are the changes we need to make:
