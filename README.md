@@ -1079,7 +1079,7 @@ TELNETLanEnable="1"
 ### Set default Huawei routers users (root:admin and telecomadmin:admintelecom). Here we can see the credentials that the router was using until now (root:80%V0d@%W31%12)  
 Before:
 ```console
-X_HW_WebUserInfo NumberOfInstances="1">
+<X_HW_WebUserInfo NumberOfInstances="1">
 <X_HW_WebUserInfoInstance InstanceID="1" UserName="root" Password="80%V0d@%W31%12" UserLevel="1" Enable="1" ModifyPasswordFlag="1"/>
 </X_HW_WebUserInfo>
 ```
@@ -1171,8 +1171,8 @@ recover_common.sh
 ```
 The script pointed by "recovername" is used when pressing the reset button for 30 seconds. In my case PTVDFB uses the same reset script as the universal ONT, but other ONTs with different customizations from other ISPs may use a different script (Ex: recover_claro.sh). If that's the case, we should modify the "recovername" file to set "recover_common.sh" as reset script.
 
-Here we have finished all the modifications of the JFFS2 file system, what we have to do now is to repack everything again. The commands that we need to execute are:  
-Pack the JFFS2 file system
+Here we have finished all the modifications of the JFFS2 file system, what we have to do now is to repack everything again. The commands that we need to execute are:     
+Pack the JFFS2 file system:
 ```console
 logon@logonlap:~$mkfs.jffs2 -l -q --root=./Afile_system_trim2.bin.extracted/jffs2-root/fs_1 -o new_jffs2.bin
 ```
@@ -1180,15 +1180,15 @@ Create an 'empty' container filled with "FF" to build a new "Afile_system_MODDED
 ```console
 logon@logonlap:~$dd if=/dev/zero bs=1 count=$((0x00180000)) | tr "\000" "\377" > Afile_system_MODDED.bin
 ```
-Insert the "identifier" we split before in the new container in its original offset (0)
+Insert the "identifier" we split before in the new container in its original offset (0):
 ```console
 logon@logonlap:~$dd if=Afile_system_trim1.bin bs=1 status=none of=Afile_system_MODDED.bin conv=notrunc
 ```
-Insert the new JFFS2 file system in the new container in its original offset (0x100000)
+Insert the new JFFS2 file system in the new container in its original offset (0x100000):
 ```console
 logon@logonlap:~$dd if=new_jffs2.bin bs=1 status=none seek=$((0x100000)) of=Afile_system_MODDED.bin conv=notrunc
 ```
-Rebuild the whole flash, using our Afile_system_MODDED.bin instead of the original "A" partition
+Rebuild the whole flash, using our Afile_system_MODDED.bin instead of the original "A" partition:
 ```console
 logon@logonlap:~$cat 1startcode.bin 2bootA.bin 3bootB.bin 4flashcfg.bin 5slave_param.bin 6kernelA.bin 7kernelB.bin 8rootfsA.bin 9rootfsB.bin Afile_system_MODDED.bin Breserved.bin > fullflash_MODDED.bin
 ```
