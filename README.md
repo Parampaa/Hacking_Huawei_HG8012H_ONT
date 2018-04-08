@@ -1090,5 +1090,85 @@ After:
 <X_HW_WebUserInfoInstance InstanceID="2" UserName="telecomadmin" Password="admintelecom" UserLevel="0" Enable="1" ModifyPasswordFlag="0"/>
 </X_HW_WebUserInfo>
 ```
+In the case that the password field is a string composed of hexadecimal characters it means that what is shown is not a clear password, but the result of applying a HASH function to it. To generate a hash with the desired password we must apply the function MD5 (PASSWORD) if the length of the original field is 28 bytes or the function SHA256 (MD5 (PASSWORD)) if the length of the field is 64 bytes. The file ./fs_1/CfgFile_Backup/V300R013C10SPC128B217.xml had the passwords in HASH format with 64 bytes in length in my ONT, so the access users section in that particular file was as follows:
+After:
+```console
+<X_HW_WebUserInfo NumberOfInstances="2">
+<X_HW_WebUserInfoInstance InstanceID="1" UserName="root" Password="465c194afb65670f38322df087f0a9bb225cc257e43eb4ac5a0c98ef5b3173ac" UserLevel="1" Enable="1" ModifyPasswordFlag="1" PassMode="2"/>
+<X_HW_WebUserInfoInstance InstanceID="2" UserName="telecomadmin" Password="402931e04c03e24d360477a9f90b9eb15777e154360f06228be15c37679016ef" UserLevel="0" Enable="1" ModifyPasswordFlag="1" PassMode="2"/>
+</X_HW_WebUserInfo>
+```
+If we want to the edit credentials for the Telnet user, we have to edit them in the "<X_HW_CLIUserInfoInstance" part of the XML file.
 
+### Set local ONT's IP according to my LAN
+Before:
+```console
+IPInterfaceIPAddress="192.168.100.1"
+```
+After:
+```console
+IPInterfaceIPAddress="192.168.1.1"
+```
 
+### Debrand device, from "Vodafone Portugal" (PTVDFB) to "Universal device"
+Before:
+```console
+<X_HW_ProductInfo originalVersion="V300R013C10SPC128C0009150076" currentVersion="V300R013" customInfo="PTVDFB" customInfoDetail="PTVDFB"/>
+```
+After:
+```console
+<X_HW_ProductInfo originalVersion="V300R013C10SPC128C0009150076" currentVersion="V300R013" customInfo="COMMON" customInfoDetail="COMMON"/>
+```
+
+### Disable DHCP LAN Server. This was caussing issues in the WAN port of my Linksys EA8500
+Before:
+```console
+<LANHostConfigManagement DHCPServerConfigurable="1" DHCPServerEnable="1"
+```
+After:
+```console
+<LANHostConfigManagement DHCPServerConfigurable="1" DHCPServerEnable="0"
+```
+
+Now we have to do the reverse step with these files, that is, re-encrypt them and replace the original files with the new ones that we have modified. To re-encrypt the modified files we use the command:
+```console
+logon@logonlap:~$aescrypt2_huawei 0 INPUT_FILE OUTPUT_FILE
+```
+
+Now we focus on the files we marked in pink on the JFFS2 file system tree. These files are not encrypted, so its modification is much easier. As I explained previously, what we are looking for by editing them is to establish with it the ONT as universal without the personalization, in this case, of Vodafone Portugal. These are the changes we need to make:
+
+hw_boardinfo BEFORE:
+```console
+obj.id = "0x0000001b" ; obj.value = "PTVDFB";
+```
+hw_boardinfo AFTER:
+```console
+obj.id = "0x0000001b" ; obj.value = "COMMON";
+```
+hw_boardinfo.bak BEFORE:
+```console
+obj.id = "0x0000001b" ; obj.value = "PTVDFB";
+```
+hw_boardinfo.bak AFTER:
+```console
+obj.id = "0x0000001b" ; obj.value = "COMMON";
+```
+customize.txt BEFORE:
+```console
+COMMON PTVDFB
+```
+customize.txt AFTER:
+```console
+COMMON COMMON
+```
+recovername BEFORE:
+```console
+recover_common.sh
+```
+recovername AFTER:
+```console
+recover_common.sh
+```
+This script is used when pressing the reset button for 30 seconds. In my case PTVDFB uses the same reset script as the universal ONT, but other ONTs with different customizations from other ISPs may use a different script (Ex: recover_claro.sh). If that's the case, we should modify the "recovername" file to set "recover_common.sh" as reset script.
+
+Here we have finished all the modifications of the JFFS2 file system, what we have to do now is to repack everything again. The commands that we need to execute are:
