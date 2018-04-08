@@ -1067,7 +1067,7 @@ logon@logonlap:~$aescrypt2_huawei 1 INPUT_FILE OUTPUT_FILE
 
 The changes we need to make to the files after decrypting them are the following:
 
-\\Enable telnet access
+\\Enable telnet access  
 Before:
 ```console
 TELNETLanEnable="0"
@@ -1076,7 +1076,7 @@ After:
 ```console
 TELNETLanEnable="1"
 ```
-\\Set default Huawei routers users (root:admin and telecomadmin:admintelecom). Here we can see the credentials that the router was using until now (root:80%V0d@%W31%12)
+\\Set default Huawei routers users (root:admin and telecomadmin:admintelecom). Here we can see the credentials that the router was using until now (root:80%V0d@%W31%12)  
 Before:
 ```console
 X_HW_WebUserInfo NumberOfInstances="1">
