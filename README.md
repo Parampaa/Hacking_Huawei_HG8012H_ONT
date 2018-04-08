@@ -537,17 +537,17 @@ dd if=flashdump.bin bs=1 status=none skip=$((PARTITION_START)) count=$((PARTITIO
 In my case, these are the commands I ran:
 
 ```console
-dd if=flashdump.bin bs=1 status=none skip=$((0x00000000)) count=$((0x00040000)) of=1startcode.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00040000)) count=$((0x00040000)) of=2bootA.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00080000)) count=$((0x00040000)) of=3bootB.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x000c0000)) count=$((0x00040000)) of=4flashcfg.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00100000)) count=$((0x00040000)) of=5slave_param.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00140000)) count=$((0x00200000)) of=6kernelA.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00340000)) count=$((0x00200000)) of=7kernelB.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00540000)) count=$((0x00480000)) of=8rootfsA.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x009c0000)) count=$((0x00480000)) of=9rootfsB.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00e40000)) count=$((0x00180000)) of=Afile_system.bin
-dd if=flashdump.bin bs=1 status=none skip=$((0x00fc0000)) count=$((0x00040000)) of=Breserved.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00000000)) count=$((0x00040000)) of=1startcode.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00040000)) count=$((0x00040000)) of=2bootA.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00080000)) count=$((0x00040000)) of=3bootB.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x000c0000)) count=$((0x00040000)) of=4flashcfg.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00100000)) count=$((0x00040000)) of=5slave_param.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00140000)) count=$((0x00200000)) of=6kernelA.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00340000)) count=$((0x00200000)) of=7kernelB.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00540000)) count=$((0x00480000)) of=8rootfsA.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x009c0000)) count=$((0x00480000)) of=9rootfsB.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00e40000)) count=$((0x00180000)) of=Afile_system.bin
+logon@logonlap:~$dd if=flashdump.bin bs=1 status=none skip=$((0x00fc0000)) count=$((0x00040000)) of=Breserved.bin
 ```
 
 Note that at the beginning of each partition name I have added a sequence in the form of hexadecimal numbers to maintain the order of the partitions and thereby facilitate the subsequent task of joining them in a single file.
@@ -561,21 +561,21 @@ To analyze the content of said partition "A", we will use a powerful and recogni
 We will separate each of these areas into separate files to facilitate the subsequent identification of each of the two data blocks as well as the future task of rebuilding partition "A". For this we use the dd command again:
 
 ```console
-dd if=Afile_system.bin bs=1 status=none skip=$((0x0)) count=12 of=Afile_system_trim1.bin
-dd if=Afile_system.bin bs=1 status=none skip=$((0x100000)) count=493216 of=Afile_system_trim2.bin
+logon@logonlap:~$dd if=Afile_system.bin bs=1 status=none skip=$((0x0)) count=12 of=Afile_system_trim1.bin
+logon@logonlap:~$dd if=Afile_system.bin bs=1 status=none skip=$((0x100000)) count=493216 of=Afile_system_trim2.bin
 ```
 
 At this point is when Binwalk comes into play, let's see what identifies in each of these two blocks that we just separated:
 
 ```console
-binwalk Afile_system_trim1.bin
+logon@logonlap:~$binwalk Afile_system_trim1.bin
 
 DECIMAL       HEXADECIMAL     DESCRIPTION
 --------------------------------------------------------------------------------
 0             0x0             JFFS2 filesystem, little endian
 ```
 ```console
-binwalk Afile_system_trim2.bin
+logon@logonlap:~$binwalk Afile_system_trim2.bin
 
 DECIMAL       HEXADECIMAL     DESCRIPTION
 --------------------------------------------------------------------------------
