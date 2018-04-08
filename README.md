@@ -1055,5 +1055,5 @@ Bingo!. In this way Binwalk identifies the entire area as a single file system, 
 logon@logonlap:~$sudo binwalk -y jffs2 -e Afile_system_trim2.bin
 ```
 
-I have extracted the file system as superuser to make sure I don't lose sensible data like file permissions or symbolic links. IMPORTANT:Binwalk needs the 'jefferson' utility installed (https://github.com/sviehb/jefferson) in order to be able to extract this kind of file system. 
+I have extracted the file system as superuser to make sure I don't lose sensible data like file permissions or symbolic links. IMPORTANT: Binwalk needs the 'jefferson' utility installed (https://github.com/sviehb/jefferson) in order to be able to extract this kind of file system. 
 Inside the directory ./Afile_system_trim2.bin.extracted/jffs2-root we find the extracted files:
