@@ -1336,7 +1336,7 @@ Open the file 8rootfsA_Uimage_header.bin with an hexadecimal editor and search f
 
 8rootfsA_Uimage_header.bin CRC32:
 ```console
-logon@logonlap:~$crc32  crc32 8rootfsA_Uimage_header.bin
+logon@logonlap:~$crc32 8rootfsA_Uimage_header.bin
 ```
 Now we reopen 8rootfsA_Uimage_header.bin and replace again the last sequence "00 00 00 00" that we added to replace "UU UU UU UUU" with the CRC32 obtained in the last command.  
 
