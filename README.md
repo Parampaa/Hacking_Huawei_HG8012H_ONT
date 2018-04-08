@@ -1331,7 +1331,7 @@ new_squashfs.bin length (4 bytes format):
 ```console
 logon@logonlap:~$printf '%08x\n' $(stat -c '%s' new_squashfs.bin)
 ```
-Open the file 8rootfsA_Uimage_header.bin with an hexadecimal editor and we search for the sequence "27 05 19 56 UU UU UU UU VV VV VV VV WW WW WW WW XX XX XX XX YY YY YY YY ZZ ZZ ZZ ZZ". We must replace "ZZ ZZ ZZ ZZ" with the CRC32 of new_squashfs.bin and "WW WW WW WW" with the length of the new_squashfs.bin file. Once this is done, we modify the sequence "UU UU UU UU" with "00 00 00 00" and save the file.  
+Open the file 8rootfsA_Uimage_header.bin with an hexadecimal editor and search for the sequence "27 05 19 56 UU UU UU UU VV VV VV VV WW WW WW WW XX XX XX XX YY YY YY YY ZZ ZZ ZZ ZZ". We must replace "ZZ ZZ ZZ ZZ" with the CRC32 of new_squashfs.bin and "WW WW WW WW" with the length of the new_squashfs.bin file. Once this is done, we modify the sequence "UU UU UU UU" with "00 00 00 00" and save the file.  
 
 
 8rootfsA_Uimage_header.bin CRC32:
