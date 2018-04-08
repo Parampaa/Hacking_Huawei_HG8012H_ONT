@@ -1036,3 +1036,24 @@ DECIMAL       HEXADECIMAL     DESCRIPTION
 460200        0x705A8         JFFS2 filesystem, little endian
 493096        0x78628         JFFS2 filesystem, little endian
 ```
+
+First file seems to be used only as an identifier of the format of the second one, because if I extract the file trim1 with the "-e" modifier of binwalk, no content appears. Certainly we can not expect many compressed files within a file of only 12 bytes in size. So for the moment we ignore that identifier.
+
+Regarding the second file, binwalk identifies a chaos mixture of compressed files and JFFS2 file systems. This type of output is a clear indication that false positives are being detected. Let's help Binwalk a bit telling him to just try to identify JFFS2 file systems in Afile_system_trim2.bin, since I suspect that Zlib compressed files are included within the JFFS2 system itself:
+
+```console
+logon@logonlap:~$binwalk -y jffs2 Afile_system_trim2.bin
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+0             0x0             JFFS2 filesystem, little endian
+```
+
+Bingo!. In this way Binwalk identifies the entire area as a single file system, so we can proceed to extract it and expect consistent results. We add the parameter "-e" to extract:
+
+```console
+logon@logonlap:~$sudo binwalk -y jffs2 -e Afile_system_trim2.bin
+```
+
+I have extracted the file system as superuser to make sure I don't lose information sensible data like file permissions or symbolic links. IMPORTANT:Binwalk needs the 'jefferson' utility installed (https://github.com/sviehb/jefferson) in order to be able to extract this kind of file system. 
+Inside the directory ./Afile_system_trim2.bin.extracted/jffs2-root we find the extracted files:
