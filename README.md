@@ -37,4 +37,20 @@ nmap -Pn -n -p0- 192.168.100.1
 
 It did not help much, all ports were closed except port 80 (webUi). Port 23 (telnet) was not only not open but was being filtered by the integrated firewall to further complicate things. There was nothing else I could do externally to solve this, so screwdriver in hand I ventured to examine the bowels of the bug.
 
+## Hostility level 2
+
+Once the cover was opened and after a component identification phase, this is what I found:
+
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/4bottom_PCB.jpg)
+
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/5spec.jpg)
+
+Of all these components the ones that caught my attention were the serial port pads, the JTAG port and the flash memory. After a search on the internet, I deduced the pinout of both the serial port and the JTAG. They are quite common among HUAWEI router devices.
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/6jtag.png)
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/7serial.jpg)
+
+I tested JTAG portusing the parallel port cable that can be seen in the previous photo but I did not get response, so I focused my efforts on the serial port. After connecting a TTL-USB converter and connecting to the virtual COM port using PutTy with a rate of 115200 symbols, I started to see the following bootlog on the screen:
+<addr>ggg</addr>
