@@ -54,7 +54,7 @@ Of all these components the ones that caught my attention were the serial port p
 
 I tested JTAG portusing the parallel port cable that can be seen in the previous photo but I did not get response, so I focused my efforts on the serial port. After connecting a TTL-USB converter and connecting to the virtual COM port using PutTy with a rate of 115200 symbols, I started to see the following bootlog on the screen:
 
-'''console
+```console
 HuaWei StartCode 2012.02 (Mar 25 2014 - 01:04:34)
 
 SPI:
@@ -476,4 +476,4 @@ pfFuncHandle ERR. uiRet:ffffffff;
  pfFuncHandle ERR. uiRet:ffffffff;
  <db/hw_xml_dbmain.c:7100>[HW_XML_DBOnceSave] Set DB Auto Save in 12000 ticks.
 Reset reason: unknown reason, except oom, watchdog and lossing power!
-'''
+```
