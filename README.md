@@ -8,6 +8,5 @@ Due to the change from Vodafone to Masmóvil network that took place last year b
 Now, I have changed the internet operator, moving to a FTTH connection of 500/300 MB with Cableworld and they installed a Huawei HG8245U router and an optical splitter whose coaxial output, connected to home's TV splitter, distributes the TV channels of the service. As I was very happy with the operation and WIFI coverage of the Linksys Ea8500 router, I configured the HG8245U router again in WAN bridge mode and this is the way in which I have been working.
 
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/1spliiter.jpg)
-Format: ![Alt Text](url)
 
 
