@@ -97,13 +97,13 @@ I tested JTAG portusing the parallel port cable that can be seen in the previous
 >BootArgs:noalign mem=114M console=ttyAMA1,115200 initrd=0x86000040,0x47c194 rdinit=/linuxrc mtdparts=hi_sfc:0x40000(startcode),0x40000(bootA)ro,0x40000(bootB)ro,0x40000(flashcfg)ro,0x40000(slave_param)ro,0x200000(kernelA)ro,0x200000(kernelB)ro,0x480000(rootfsA)ro,0x480000(rootfsB)ro,0x180000(file_system),-(reserved)pcie1_sel=x1 maxcpus=0 user_debug=0x1f panic=1
 >U-boot Start from NORMAL Mode!
 >
->## Booting kernel from Legacy Image at 1c340054 ...
+>   Booting kernel from Legacy Image at 1c340054 ...
 >   Image Name:   Linux-2.6.34.10_sd5115v100_wr4.3
 >   Image Type:   ARM Linux Kernel Image (uncompressed)
 >   Data Size:    2025204 Bytes =  1.9 MB
 >   Load Address: 81000000
 >   Entry Point:  81000000
->## Loading init Ramdisk from Legacy Image at 86000000 ...
+>   Loading init Ramdisk from Legacy Image at 86000000 ...
 >   Image Name:   cpio
 >   Image Type:   ARM Linux RAMDisk Image (uncompressed)
 >   Data Size:    4702612 Bytes =  4.5 MB
