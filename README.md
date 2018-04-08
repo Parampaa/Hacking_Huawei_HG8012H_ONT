@@ -1037,7 +1037,7 @@ DECIMAL       HEXADECIMAL     DESCRIPTION
 493096        0x78628         JFFS2 filesystem, little endian
 ```
 
-First file seems to be used only as an identifier of the format of the second one, because if I extract the file trim1 with the "-e" modifier of binwalk, no content appears. Certainly we can not expect many compressed files within a file of only 12 bytes in size. So for the moment we ignore that identifier.
+First file seems to be used only as an "identifier" of the format of the second one, because if I extract the file trim1 with the "-e" modifier of binwalk, no content appears. Certainly we can not expect many compressed files within a file of only 12 bytes in size. So for the moment we ignore that identifier.
 
 Regarding the second file, binwalk identifies a chaos mixture of compressed files and JFFS2 file systems. This type of output is a clear indication that false positives are being detected. Let's help Binwalk a bit telling him to just try to identify JFFS2 file systems in Afile_system_trim2.bin, since I suspect that Zlib compressed files are included within the JFFS2 system itself:
 
@@ -1171,4 +1171,69 @@ recover_common.sh
 ```
 The script pointed by "recovername" is used when pressing the reset button for 30 seconds. In my case PTVDFB uses the same reset script as the universal ONT, but other ONTs with different customizations from other ISPs may use a different script (Ex: recover_claro.sh). If that's the case, we should modify the "recovername" file to set "recover_common.sh" as reset script.
 
-Here we have finished all the modifications of the JFFS2 file system, what we have to do now is to repack everything again. The commands that we need to execute are:
+Here we have finished all the modifications of the JFFS2 file system, what we have to do now is to repack everything again. The commands that we need to execute are:  
+Pack the JFFS2 file system
+```console
+logon@logonlap:~$mkfs.jffs2 -l -q --root=./Afile_system_trim2.bin.extracted/jffs2-root/fs_1 -o new_jffs2.bin
+```
+Create an 'empty' container filled with "FF" to build a new "Afile_system_MODDED.bin" with our changes, keeping the original size of Afile_system.bin:
+```console
+logon@logonlap:~$dd if=/dev/zero bs=1 count=$((0x00180000)) | tr "\000" "\377" > Afile_system_MODDED.bin
+```
+Insert the "identifier" we split before in the new container in its original offset (0)
+```console
+logon@logonlap:~$dd if=Afile_system_trim1.bin bs=1 status=none of=Afile_system_MODDED.bin conv=notrunc
+```
+Insert the new JFFS2 file system in the new container in its original offset (0x100000)
+```console
+logon@logonlap:~$dd if=new_jffs2.bin bs=1 status=none seek=$((0x100000)) of=Afile_system_MODDED.bin conv=notrunc
+```
+Rebuild the whole flash, using our Afile_system_MODDED.bin instead of the original "A" partition
+```console
+logon@logonlap:~$cat 1startcode.bin 2bootA.bin 3bootB.bin 4flashcfg.bin 5slave_param.bin 6kernelA.bin 7kernelB.bin 8rootfsA.bin 9rootfsB.bin Afile_system_MODDED.bin Breserved.bin > fullflash_MODDED.bin
+```
+
+With this we have created the file "fullflash_MODDED.bin" that contains all the partitions that the Huawei ONT needs to work. What we have to do with it is to burn it into the ONT's flash and check if the modifications we made do work. So, we reconnect the programmer (Pickit2 in my case) to the flash chip using the SOIC16 clip and execute:
+```console
+logon@logonlap:~$sudo flashrom -p pickit2_spi -w fullflash_MODDED.bin -c "S25FL128P......0"
+flashrom p1.0-62-ga3ab6c6 on Linux 4.13.0-37-generic (x86_64)
+flashrom is free software, get the source code at https://flashrom.org
+
+Using clock_gettime for delay loops (clk_id: 1, resolution: 1ns).
+Found Spansion flash chip "S25FL128P......0" (16384 kB, SPI) on pickit2_spi.
+===
+This flash part has status UNTESTED for operations: PROBE READ ERASE WRITE
+The test status of this chip may have been updated in the latest development
+version of flashrom. If you are running the latest development version,
+please email a report to flashrom@flashrom.org if any of the above operations
+work correctly for you with this flash chip. Please include the flashrom log
+file for all operations you tested (see the man page for details), and mention
+which mainboard or programmer you tested in the subject line.
+Thanks for your help!
+Reading old flash chip contents... done.
+Erasing and writing flash chip... Erase/write done.
+Verifying flash... VERIFIED.
+```
+
+## Time for truth
+
+We connect the router to the power source, the ONT to our LAN and we go to the address http://192.168.1.1:
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/12login.png)
+
+Enter the superuser credentials we established in config files (telecomadmin / admintelecom) and click "LOGIN":
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/13welcome.png)
+
+We did it !!! We have managed to access the webui starting from a completely unknown user access and password situation (which was not re-established even with a hard-reset of the device) and with blocked telnet access. Will we be able to connect also via telnet? Let's see:
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/14telnet.png)
+
+Yes! I used root:admin credentials for Telnet access, if we wanted to modify these credentials, we could have done it by editing the section <X_HW_CLIUserInfoInstance in the XML files. The Telnet console gives us access to the Huawei WAP console, which is a console with custom commands to set different configurations. Not to be confused with a standard BASH console in linux, here we can not use "dir", "mkdir" or any linux console command.
+
+At this point I only need to configure the SN of the router HG8245U that my ISP installed, in this hacked HG8012H ONT. The SN of the router is used as an identification parameter and access restriction to the Internet network of the ISP. With an SN that is not previously registered in the whitelist of the internet operator's OLT, the router will never do synchronize with ISP. So we must configure the SN of the router HG8245U in the ONT HG8012H going to the menu "System Tools"> "ONT Authentication" and clicking "Apply" after entering the SN.
+
+
+After this, I notice that the LED PON flashes in green a few seconds and finally remains fixed in that same color, that is, the ONT has managed to authenticate in ISP's OLT. At the same time, I observe that on my Linksys EA8500 router I get a public IP, so finally I have my Internet connection working, occupying much less space in the furniture and consuming less energy.
+
+¿THE END?
