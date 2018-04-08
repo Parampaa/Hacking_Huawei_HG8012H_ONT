@@ -1110,7 +1110,7 @@ After:
 IPInterfaceIPAddress="192.168.1.1"
 ```
 
-### Debrand device, from "Vodafone Portugal" (PTVDFB) to "Universal device"
+### Debranded configuration, from "Vodafone Portugal" (PTVDFB) to "Universal device"
 Before:
 ```console
 <X_HW_ProductInfo originalVersion="V300R013C10SPC128C0009150076" currentVersion="V300R013" customInfo="PTVDFB" customInfoDetail="PTVDFB"/>
