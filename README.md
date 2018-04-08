@@ -1057,3 +1057,12 @@ logon@logonlap:~$sudo binwalk -y jffs2 -e Afile_system_trim2.bin
 
 I have extracted the file system as superuser to make sure I don't lose sensible data like file permissions or symbolic links. IMPORTANT: Binwalk needs the 'jefferson' utility installed (https://github.com/sviehb/jefferson) in order to be able to extract this kind of file system. 
 Inside the directory ./Afile_system_trim2.bin.extracted/jffs2-root we find the extracted files:
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/11fs_tree.png)
+
+You can check highlighted in blue the necessary files needed to edit to vary webUi access parameters and router services while the files that must be edited to convert the ONT into a universal device, without personalization of the ISP are highlighted in pink. The problem with the firsts is that, in my case, if I open them with a text editor they turn out to be encrypted and their content is not understandable. Luckily this type of encryption has already been hacked by the community and there is a utility called "aescrypt2_huawei" that allows decryption and encryption of these file. We execute the following command on each of the files highlighted in blue to decrypt them:
+```console
+logon@logonlap:~$aescrypt2_huawei 1 INPUT_FILE OUTPUT_FILE
+```
+
+The changes we need to make to the files after decrypting them are the following:
