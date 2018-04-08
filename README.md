@@ -54,6 +54,4 @@ Of all these components the ones that caught my attention were the serial port p
 
 I tested JTAG portusing the parallel port cable that can be seen in the previous photo but I did not get response, so I focused my efforts on the serial port. After connecting a TTL-USB converter and connecting to the virtual COM port using PutTy with a rate of 115200 symbols, I started to see the following bootlog on the screen:
 
-'''
-ggg
-'''
+> ggg
