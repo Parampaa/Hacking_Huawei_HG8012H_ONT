@@ -477,3 +477,54 @@ pfFuncHandle ERR. uiRet:ffffffff;
  <db/hw_xml_dbmain.c:7100>[HW_XML_DBOnceSave] Set DB Auto Save in 12000 ticks.
 Reset reason: unknown reason, except oom, watchdog and lossing power!
 ```
+
+In many cases, this type of serial connection ends up in a login screen in which credentials are requested in order to operate and configure certain aspects of the device. However, this was not the case. No doubt this ONT was fortified so as not to alter its configuration in any way. In any case there was an information in the bootlog that caught my attention:
+
+```console
+Creating 11 MTD partitions on "hi_sfc":
+0x000000000000-0x000000040000 : "startcode"
+0x000000040000-0x000000080000 : "bootA"
+0x000000080000-0x0000000c0000 : "bootB"
+0x0000000c0000-0x000000100000 : "flashcfg"
+0x000000100000-0x000000140000 : "slave_param"
+0x000000140000-0x000000340000 : "kernelA"
+0x000000340000-0x000000540000 : "kernelB"
+0x000000540000-0x0000009c0000 : "rootfsA"
+0x0000009c0000-0x000000e40000 : "rootfsB"
+0x000000e40000-0x000000fc0000 : "file_system"
+0x000000fc0000-0x000001000000 : "reserved"
+```
+Here you can see that the flash memory is subdivided into several partitions with different purposes. If in any of the partitions I could be able to locate the file with the current configuration of the router, I could modify it to suit my interests and even see the users enabled in the Webui, enable telnet or any other aspect. In many Huawei routers, the file in question is called 'hw_ctree.xml', which is precisely the file that is generated when exporting a configuration backup from the web administration. So, discarded the JTAG port and the serial port as access doors, there was only one option to focus all my attention: flash memory. I examined the serigraphed letters with a magnifying glass and I could see that it was a Spansion S25FL128P flash memory. So datasheet in hand I launched myself to scrutinize their interiors feeling that access to the router had already become a personal issue.
+
+### Hostility level 3
+
+To make a flash dump I found a specific utility for this type of flash chips called "Flashrom" that supports a large number of programmers. Luckily, I had one of them, a Microchip Pickit2 that I had forgotten in a drawer. So, with the pinout of the chip extracted from the datasheet, and the router completely disconnected from the power source (the programmer powers the chip itself) I started connecting the programmer to the chip with a SOIC16 clip (Pomona 5252). The connection schematic is as follows:
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/8pickit2-pinout.jpg)
+
+Once the programmer-chip connection was made, I connected the programmer to the USB port and made the flash dump by executing the command:
+```console
+sudo flashrom -p pickit2_spi -r flashdump.bin -c "S25FL128P ...... 0"
+```
+
+with the parameter "-p" we specify the programmer we are using to read the flash memory, in my case as I mentioned it is a pickit2 and with the parameter "-c" we define the chip that we are going to read.
+After about half an hour, the reading process ended and I already had the chip dump on my PC, ready to be examined.
+
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/9connection.jpeg)
+
+Once the flash memory has been dumped in a file, we must separate the file in their respective original partitions, in order to analyze each of them with greater precision. To do this, we first need to calculate the size of each partition, that is, subtract the offset from the end of the partition to the start offset of the partition. In this way, we obtain the following partition sizes:
+
+```console
+"startcode" : 0x000000000000-0x000000040000 =>  0x00040000 bytes
+"bootA" : 0x000000040000-0x000000080000 => 0x00040000 bytes
+"bootB" : 0x000000080000-0x0000000c0000 => 0x00040000 bytes
+"flashcfg" : 0x0000000c0000-0x000000100000 => 0x00040000 bytes
+"slave_param" : 0x000000100000-0x000000140000  => 0x00040000 bytes
+"kernelA" : 0x000000140000-0x000000340000 => 0x00200000 bytes
+"kernelB" : 0x000000340000-0x000000540000 => 0x00200000 bytes
+“rootfsA" : 0x000000540000-0x0000009c0000 => 0x00480000 bytes
+"rootfsB" : 0x0000009c0000-0x000000e40000 => 0x00480000 bytes
+"file_system" : 0x000000e40000-0x000000fc0000 => 0x00180000 bytes
+"reserved" : 0x000000fc0000-0x000001000000 => 0x00040000 bytes
+```
