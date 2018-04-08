@@ -37,7 +37,7 @@ nmap -Pn -n -p0- 192.168.100.1
 
 It did not help much, all ports were closed except port 80 (webUi). Port 23 (telnet) was not only not open but was being filtered by the integrated firewall to further complicate things. There was nothing else I could do externally to solve this, so screwdriver in hand I ventured to examine the bowels of the bug.
 
-## Hostility level 2
+### Hostility level 2
 
 Once the cover was opened and after a component identification phase, this is what I found:
 
