@@ -1237,3 +1237,144 @@ At this point I only need to configure the SN of the router HG8245U that my ISP 
 After this, I notice that the LED PON flashes in green a few seconds and finally remains fixed in that same color, that is, the ONT has managed to authenticate in ISP's OLT. At the same time, I observe that on my Linksys EA8500 router I get a public IP, so finally I have my Internet connection working, occupying much less space in the furniture and consuming less energy.
 
 ¿THE END?
+
+Not yet. When I turn on my TV I realise no TV channels are visible at all and the CATV LED on the ONT remains off. At first I imagined that connecting a coaxial cable to the CATV output will turn on the CATV LED, but it was not like this. I also I did not see any option in the web interface to activate said television output. Why? It seems that the system is designed in this way: just after the ONT synchronizes with the OLT, the OLT sends the order to activate the TV module in the routers of clients that have contracted that TV service. If a client has not contracted the TV service, then the OLT will not send the instruction to activate said CATV module and therefore the client will not be able to see the TV through said output. In my case, I have contracted the TV service with ISP, but they use a passive device to extract the television channels from the optical fiber (Mininode SR2020AW, see first pic in top of this article) so the OLT sends by default the CATV = Off instruction to the subscribers, as i this ISP there's no client with an ONT with CATV integrated in.
+
+After colliding with the wall of lack of information about the CATV module integrated in some of the Huawei devices and multiple tests, I finally discovered a way to activate the TV in the ONT:
+
+```console
+telnet 192.168.1.1
+Login: root
+Password: admin
+WAP> su
+SU_WAP> set rf switch on
+```
+
+This script must be entered AFTER the ONT synchronizes with the OLT. If we execute it before the synchronization, the CATV module will turn off again after synchronization since as we said, the OLT of my ISP sends the instruction CATV = Off by default.
+
+The disadvantages of activating the CATV module in this way are clear: each time the ONT power source turns off, voluntarily or involuntarily, the CATV module will remain OFF until the Ethernet cable that goes from the ONT to the WAN port of the Linksys router is disconnected, and the cable coming from my PC is connected to the ONT and then the previous Telnet commands are run. And after this, all the cables should be connected as they were to be able to have an internet connection again. Not very practical, we have to somehow automate the activation of the television output, and this involves modifying the firmware even more.
+
+What we now want to achieve is not edit the configuration of the device (as we did with the partition "A"), but modify the internal operation of the device itself. This will be achieved by editing the root file system (ROOTFS), that is partition "8" and "9" according to the map initially shown. With a simple comparison of crc32 I verify that 8rootfsA.bin is identical to 9rootfsB.bin, so I will focus on 8rootfsA.bin. As we did in the past, I now make a data map of partition "8":
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/15rootfs_map.jpg)
+
+
+It seems that all the information in this partition is condensed in the upper part, without intermediate gaps, so in principle we are not going to perform additional separations. Let's see what binwalk detects:
+
+```console
+logon@logonlap:~$binwalk  8rootfsA.bin
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+84            0x54            	uImage header, header size: 64 bytes, header CRC: 0xEADB737A, created: 2016-			04-18 13:19:13, image size: 3805184 bytes, Data Address: 0x0, Entry Point: 0x0, 			data CRC: 0xE731B6C3, OS: Linux, CPU: ARM, image type: RAMDisk Image, 			compression type: none, image name: "squashfs"
+148           0x94           	Squashfs filesystem, little endian, version 4.0, compression:lzma, size: 3802857 			bytes, 1005 inodes, blocksize: 131072 bytes, created: 2016-04-18 13:19:13
+4504532       0x44BBD4        MySQL ISAM index file Version 6
+```
+From here we can deduce several things with very simple calculations. First Binwalk detected a header of type Uimage at offset 0x54, but the data according to the previous map started directly at offset 0. This means that before the uimage header we have some type of header not identified by Binwalk. We will call that piece between offset 0x00 and 0x54 "Huawei_header". Then there is an lzma compressed Squashfs v4.0 file system. Third, there is a structure of MySQL type ISAM at offset 0x44BBD4. If we observe the data detected by Binwalk in the Uimage header, one of them tells us that the squashfs system with which this header is associated has a size of 3805184 bytes, while the size that Binwalk has detected in the squashfs system itself is 3802857 bytes. This means that Binwalk has incorrectly identified the squashfs system length: the squashfs system does not end at 0x3A077D (0x94 + 3802857 = 0x94 + 0x3A06E9 = 0x3A077D) but at offset 0x3A1094 (0x94 + 3805184 = 0x94 + 0x3A1000 = 0x3A1094). Next there are unidentified data that ends at offset 0x47C228. Binwalk is not able to identify it even after extracting the section [0x3A1094 0x47C228]. We will call this part "Huawei_footer.bin" and will add it at the end of the 8rootfsA_MODDED.bin repackage process. With all this, we can fine-tune the initial map of 8rootfsA.bin and it would look like this:
+
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/16rootfs_map2.jpg)
+
+We proceed to split each area using dd:
+
+```console
+logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x0)) count=84 of=8rootfsA_Huawei_header.bin
+logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x54)) count=64 of=8rootfsA_Uimage_header.bin
+logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x94)) count=3805184 of=8rootfsA_squashfs.bin
+logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x3A1094)) count=897428 of=8rootfsA_Huawei_footer.bin
+```
+And we extract the squashfs file system with binwalk:
+
+```console
+logon@logonlap:~$binwalk -e 8rootfsA_squashfs.bin
+```
+
+The directory tree extracted at./8rootfsA.bin.extracted/squashfs-root is the following: (IMPORTANT: in order for binwalk to extract this type of file system we need to have installed the 'squashfs-tools' package)
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/17squashfs_tree.png)
+
+We are going to edit the file ./8rootfsA.bin.extracted/squashfs-root/etc/rc.d/rc.start/1.sdk_init.sh, which is the last script that is executed during the boot of the device, to invoke a new script that will allow us to invoke the process that will activate the CATV output as well as execute other commands that we may need in the future, without risk of breaking the 1.sdk_init.sh file in future editions. So I insert the following two lines in the final part, just before the infinite processes:
+
+```bash
+#echo -n "Launch user custom scripts"
+/bin/startup.sh &
+```
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/18editrc.png)
+
+Then we create a file called "startup.sh" in "/bin/" and insert the following lines inside:
+
+```bash
+#/bin/sh
+
+#wait to boot
+sleep 80
+
+#set catv output on
+{ sleep 1; echo ""; sleep 3; echo "root"; sleep 3; echo "admin"; sleep 3; echo "su"; sleep 3; echo "set rf switch on"; sleep 3; echo "quit"; sleep 3; echo "quit"; } | console.sh telnet 127.0.0.1
+```
+
+The 80-second timeout is to make sure that the ONT has finished booting and synchronizing with the ISP. The next line runs a local telnet session, which connects to the Huawei WAP console and writes line by line the necessary text to activate the CATV output.
+
+Once this is done, it's time to repack the squashfs system. For this we will need the mksquashfs utility with support for LZMA compression compiled in (mksquashfs belongs to the squashfs-tools package, but in ubuntu repositories this utility is not compiled with LZMA compression enabled. You can locate the binary with the LZMA compression enabled in the "Files" section of this project). We pack with the command:
+
+```console
+logon@logonlap:~$sudo mksquashfs ./8rootfsA.bin.extracted/squashfs-root/ new_squashfs.bin -comp lzma -all-root
+```
+
+Both the Uimage header and the Huawei header have some CRC32 checks that we must patch so that the file system is recognized as valid by the router, so we will need to execute the following commands and write down the output generated:  
+
+new_squashfs.bin CRC32:
+```console
+logon@logonlap:~$crc32  new_squashfs.bin
+```
+
+new_squashfs.bin length (4 bytes format):
+```console
+logon@logonlap:~$printf '%08x\n' $(stat -c '%s' new_squashfs.bin)
+```
+Open the file 8rootfsA_Uimage_header.bin with an hexadecimal editor and we search for the sequence "27 05 19 56 UU UU UU UU VV VV VV VV WW WW WW WW XX XX XX XX YY YY YY YY ZZ ZZ ZZ ZZ". We must replace "ZZ ZZ ZZ ZZ" with the CRC32 of new_squashfs.bin and "WW WW WW WW" with the length of the new_squashfs.bin file. Once this is done, we modify the sequence "UU UU UU UU" with "00 00 00 00" and save the file.  
+
+
+8rootfsA_Uimage_header.bin CRC32:
+```console
+logon@logonlap:~$crc32  crc32 8rootfsA_Uimage_header.bin
+```
+Now we reopen 8rootfsA_Uimage_header.bin and replace again the last sequence "00 00 00 00" that we added to replace "UU UU UU UUU" with the CRC32 obtained in the last command.  
+
+Join  8rootfsA_Uimage_header.bin and new_squashfs.bin:
+```console
+logon@logonlap:~$cat 8rootfsA_Uimage_header.bin new_squashfs.bin > 8rootfsA_UH_SFS.bin
+```
+
+8rootfsA_UH_SFS.bin CRC32 reversed by 2:
+```console
+logon@logonlap:~$crc32 8rootfsA_UH_SFS.bin | fold -w2 | tac | tr -d "\n"; echo ""
+```
+We now open the file 8rootfsA_Huawei_header.bin with an hexadecimal editor and modify exactly its last 4 bytes with the output of the last command.  
+
+Join 8rootfsA_Huawei_header.bin, 8rootfsA_UH_SFS.bin and 8rootfsA_Huawei_footer.bin into a single file:
+```console
+logon@logonlap:~$cat 8rootfsA_Huawei_header.bin 8rootfsA_UH_SFS.bin 8rootfsA_Huawei_footer.bin > 8rootfsA_nopad.bin
+```
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/19checks.png)
+
+We already have the partition almost rebuilt, we just have to add "FF..." to complete all the size the partition "8" had initially. Create the FF container with all the required size:
+```console
+logon@logonlap:~$dd if=/dev/zero bs=1 count=$((0x00480000)) | tr "\000" "\377" > 8rootfsA_MODDED.bin
+```
+
+Insert our modded "8" partition in the container in the original position (offset 0):
+```console
+logon@logonlap:~$dd if=8rootfsA_nopad.bin bs=1 status=none of=8rootfsA_MODDED.bin conv=notrunc
+```
+The last step of reconstruction is to merge all the partitions into a single file. As we said at the beginning that "8rootfsA.bin" was a 1:1 copy of "9rootfsB.bin", I add the first two times:
+```console
+logon@logonlap:~$cat 1startcode.bin 2bootA.bin 3bootB.bin 4flashcfg.bin 5slave_param.bin 6kernelA.bin 7kernelB.bin 8rootfsA_MODDED.bin 8rootfsA_MODDED.bin Afile_system_MODDED.bin Breserved.bin > fullflash_MODDED.bin
+```
+Repeat the process of programming this dump in the flash chip using Flashrom (as we did with the first modification of the partition "A"). Turn on the router and:
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/20catvon.jpg)
+
+The CATV module starts automatically and I can see the channels on TV.
+
+This is all, I suppose that this whole process can be easily adapted to other router models to carry out certain modifications. I hope you found the tutorial interesting. Thanks for reading. Logon
