@@ -528,3 +528,24 @@ Once the flash memory has been dumped in a file, we must separate the file in th
 "file_system" : 0x000000e40000-0x000000fc0000 => 0x00180000 bytes
 "reserved" : 0x000000fc0000-0x000001000000 => 0x00040000 bytes
 ```
+And now we extract every partitión from the dump using the command:
+
+```console
+dd if=flashdump.bin bs=1 status=none skip=$((PARTITION_START)) count=$((PARTITION_SIZE)) of=PARTITION_NAME.bin
+```
+
+In my case, these are the commands I ran:
+
+```console
+dd if=flashdump.bin bs=1 status=none skip=$((0x00000000)) count=$((0x00040000)) of=1startcode.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00040000)) count=$((0x00040000)) of=2bootA.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00080000)) count=$((0x00040000)) of=3bootB.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x000c0000)) count=$((0x00040000)) of=4flashcfg.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00100000)) count=$((0x00040000)) of=5slave_param.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00140000)) count=$((0x00200000)) of=6kernelA.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00340000)) count=$((0x00200000)) of=7kernelB.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00540000)) count=$((0x00480000)) of=8rootfsA.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x009c0000)) count=$((0x00480000)) of=9rootfsB.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00e40000)) count=$((0x00180000)) of=Afile_system.bin
+dd if=flashdump.bin bs=1 status=none skip=$((0x00fc0000)) count=$((0x00040000)) of=Breserved.bin
+```
