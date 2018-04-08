@@ -13,3 +13,28 @@ At this point several problems arise: The cableworld HUWAEI router is huge and I
 
 
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/2HG8012h.jpg)
+
+
+### Hostility level 0
+
+I got down to work configuring this ONT with my ISP parameters, so I connected an ethernet cable between the ONT and my PC and tried to open http://192.168.1.1 in the browser, but I got no response. Then I searched the internet for Huawei documents and technical files and found that for this model, the default IP address is 192.168.100.1 and the access users are telecomadmin:admintelecom and root:admin. After making the relevant IP and subnet changes in the network card of my PC, I went to http://192.168.100.1 in the browser and voila, the WebUi appeared to be able to start configuring my brand new ONT:
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/3login.png)
+
+Unfortunately, none of the two access users I had found in the documentation worked. So it occurred to me to press the reset button for 30 seconds with a clip with the total certainty that this would cause the default access users to be functional again. But I was wrong. After a long time trying to search the internet for a login that would allow me access to the ONT, not only did I not find it but I verified that there is very little information about this device available. As if that were not enough, I discovered that when this ONT comes directly from an ISP, it is usually blocked by them to not allow access to the configuration and that way the user can not reuse it with another ISP. In this case, it appeared that the ONT that I bought in Cashconverters had not been purchased directly from HUAWEI but had been installed by a supplier. Things started to get complicated.
+
+
+### Hostility level 1
+
+I could see that by entering 3 incorrect passwords, the router did not allow retry the login until 1 minute after, so the option of dictionaries and brute force attacks to access was discarded by the amount of time the entire process would take.
+
+Normally many routers allow telnet access to the device as an alternative way of configuration, but in this case it was impossible and the connection closed due to lack of response from the ONT.
+
+Trying to find some weak point in the ONT that allowed me access, I did a port scanner from my PC, with the following command:
+
+nmap -Pn -n -p0- 192.168.100.1
+
+
+It did not help much, all ports were closed except port 80 (webUi). Port 23 (telnet) was not only not open but was being filtered by the integrated firewall to further complicate things. There was nothing else I could do externally to solve this, so screwdriver in hand I ventured to examine the bowels of the bug.
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/4bottom_PCB.jpg)
