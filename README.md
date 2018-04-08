@@ -473,7 +473,5 @@ I tested JTAG portusing the parallel port cable that can be seen in the previous
 > pfFuncHandle ERR. uiRet:ffffffff;
 > pfFuncHandle ERR. uiRet:ffffffff;
 > pfFuncHandle ERR. uiRet:ffffffff;
-  
 > <db/hw_xml_dbmain.c:7100>[HW_XML_DBOnceSave] Set DB Auto Save in 12000 ticks.
-  
 >Reset reason: unknown reason, except oom, watchdog and lossing power!
