@@ -1169,6 +1169,6 @@ recovername AFTER:
 ```console
 recover_common.sh
 ```
-This script is used when pressing the reset button for 30 seconds. In my case PTVDFB uses the same reset script as the universal ONT, but other ONTs with different customizations from other ISPs may use a different script (Ex: recover_claro.sh). If that's the case, we should modify the "recovername" file to set "recover_common.sh" as reset script.
+The script pointed by "recovername" is used when pressing the reset button for 30 seconds. In my case PTVDFB uses the same reset script as the universal ONT, but other ONTs with different customizations from other ISPs may use a different script (Ex: recover_claro.sh). If that's the case, we should modify the "recovername" file to set "recover_common.sh" as reset script.
 
 Here we have finished all the modifications of the JFFS2 file system, what we have to do now is to repack everything again. The commands that we need to execute are:
