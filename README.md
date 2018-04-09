@@ -1,4 +1,4 @@
-# Hacking Huawei HG8012H ONT
+# Hacking Huawei HG8012H ONTa
 ## Steps to hack a HG8012H, access it and mod the firmware
 
 
