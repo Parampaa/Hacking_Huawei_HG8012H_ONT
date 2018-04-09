@@ -1250,7 +1250,7 @@ WAP> su
 SU_WAP> set rf switch on
 ```
 
-This script must be entered AFTER the ONT synchronizes with the OLT. If we execute it before the synchronization, the CATV module will turn off again after synchronization since as we said, the OLT of my ISP sends the instruction CATV = Off by default.
+These commands must be entered AFTER the ONT synchronizes with the OLT. If we execute it before the synchronization, the CATV module will turn off again after synchronization since as we said, the OLT of my ISP sends the instruction CATV = Off by default.
 
 The disadvantages of activating the CATV module in this way are clear: each time the ONT power source turns off, voluntarily or involuntarily, the CATV module will remain OFF until the Ethernet cable that goes from the ONT to the WAN port of the Linksys router is disconnected, and the cable coming from my PC is connected to the ONT and then the previous Telnet commands are run. And after this, all the cables should be connected as they were to be able to have an internet connection again. Not very practical, we have to somehow automate the activation of the television output, and this involves modifying the firmware even more.
 
