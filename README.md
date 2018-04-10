@@ -1274,13 +1274,17 @@ From here we can deduce several things with very simple calculations. First Binw
 
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/16rootfs_map2.jpg)
 
+
+After some tests updating HG8012H firmware I understood that there's no "Huawei_footer" at all in partition "8", this data was in fact remains of older and bigger rootfs file systems. When one rootfs update takes place via an official firmware update, the unused space from rootfs end to partition "8" end doesn't get formatted to "FF....", so we can assume that this Huawei_footer garbage is empty space like the next area is. Then we can show partition "8" structure as:
+
+![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/21rootfs_map3.jpg)
+
 We proceed to split each area using dd:
 
 ```console
 logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x0)) count=84 of=8rootfsA_Huawei_header.bin
 logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x54)) count=64 of=8rootfsA_Uimage_header.bin
 logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x94)) count=3805184 of=8rootfsA_squashfs.bin
-logon@logonlap:~$dd if=8rootfsA.bin bs=1 status=none skip=$((0x3A1094)) count=897428 of=8rootfsA_Huawei_footer.bin
 ```
 And we extract the squashfs file system with binwalk:
 
@@ -1351,9 +1355,9 @@ logon@logonlap:~$crc32 8rootfsA_UH_SFS.bin | fold -w2 | tac | tr -d "\n"; echo "
 ```
 We now open the file 8rootfsA_Huawei_header.bin with an hexadecimal editor and modify exactly its last 4 bytes with the output of the last command.  
 
-Join 8rootfsA_Huawei_header.bin, 8rootfsA_UH_SFS.bin and 8rootfsA_Huawei_footer.bin into a single file:
+Join 8rootfsA_Huawei_header.bin and 8rootfsA_UH_SFS.bin into a single file:
 ```console
-logon@logonlap:~$cat 8rootfsA_Huawei_header.bin 8rootfsA_UH_SFS.bin 8rootfsA_Huawei_footer.bin > 8rootfsA_nopad.bin
+logon@logonlap:~$cat 8rootfsA_Huawei_header.bin 8rootfsA_UH_SFS.bin > 8rootfsA_nopad.bin
 ```
 
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/19checks.png)
@@ -1377,11 +1381,6 @@ Repeat the process of programming this dump in the flash chip using Flashrom (as
 
 The CATV module starts automatically and I can see the channels on TV.
 
-This is all, I suppose that this whole process can be easily adapted to other router models to carry out certain modifications. I hope you found the tutorial interesting. Thanks for reading. Logon    
+This is all, I suppose that this whole process can be easily adapted to other router models to carry out certain modifications. I hope you found the tutorial interesting. Thanks for reading. Logon       
 
 
-UPDATE 1:    
-
-After some tests updating HG8012H firmware I understood that there's no "Huawei_footer" at all in partition "8", this data was in fact remains of older and bigger rootfs file systems. When one rootfs update takes place via an official firmware update, the unused space from rootfs end to partition "8" end doesn't get formatted to "FF....", so we can assume that this Huawei_footer garbage is empty space like the next area is. Then we can show partition "8" structure as:
-
-![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/21rootfs_map3.jpg)
