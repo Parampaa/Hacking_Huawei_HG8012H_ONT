@@ -1316,7 +1316,7 @@ sleep 80
 { sleep 1; echo ""; sleep 3; echo "root"; sleep 3; echo "admin"; sleep 3; echo "su"; sleep 3; echo "set rf switch on"; sleep 3; echo "quit"; sleep 3; echo "quit"; } | console.sh
 ```
 
-The 80-second timeout is to make sure that the ONT has finished booting and synchronizing with the ISP. The next line launch a local telnet session, which connects to the Huawei WAP console and writes line by line the necessary text to activate the CATV output.
+The 80-second timeout is to make sure that the ONT has finished booting and synchronizing with the ISP. The next line launches a local telnet session, which connects to the Huawei WAP console and writes line by line the necessary text to activate the CATV output.
 
 Once this is done, it's time to repack the squashfs system. For this we will need the mksquashfs utility with support for LZMA compression compiled in (mksquashfs belongs to the squashfs-tools package, but in ubuntu repositories this utility is not compiled with LZMA compression enabled. You can locate the binary with the LZMA compression enabled in the "Files" section of this project). We pack with the command:
 
