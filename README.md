@@ -1236,7 +1236,7 @@ At this point I only need to configure the SN of the router HG8245U that my ISP 
 
 After this, I notice that the LED PON flashes in green a few seconds and finally remains fixed in that same color, that is, the ONT has managed to authenticate in ISP's OLT. At the same time, I observe that on my Linksys EA8500 router I get a public IP, so finally I have my Internet connection working, occupying much less space in the furniture and consuming less energy.
 
-¿THE END?
+## ¿THE END?
 
 Not yet. When I turn on my TV I realise no TV channels are visible at all and the CATV LED on the ONT remains off. At first I imagined that connecting a coaxial cable to the CATV output will turn on the CATV LED, but it was not like this. I also I did not see any option in the web interface to activate said television output. Why? It seems that the system is designed in this way: just after the ONT synchronizes with the OLT, the OLT sends the order to activate the TV module in the routers of clients that have contracted that TV service. If a client has not contracted the TV service, then the OLT will not send the instruction to activate said CATV module and therefore the client will not be able to see the TV through said output. In my case, I have contracted the TV service with ISP, but they use a passive device to extract the television channels from the optical fiber (Mininode SR2020AW, see first pic in top of this article) so the OLT sends by default the CATV = Off instruction to the subscribers, as in this ISP there's no client with an ONT with CATV integrated in.
 
