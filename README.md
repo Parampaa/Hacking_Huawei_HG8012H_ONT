@@ -1275,7 +1275,7 @@ From here we can deduce several things with very simple calculations. First Binw
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/16rootfs_map2.jpg)
 
 
-After some tests updating HG8012H firmware I understood that there's no "Huawei_footer" at all in partition "8", this data was in fact remains of older and bigger rootfs file systems. When one rootfs update takes place via an official firmware update, the unused space that goes from rootfs end to partition "8" end doesn't get formatted to "FF....", so we can assume that this Huawei_footer garbage is empty space like the next area is. Then we can show partition "8" structure as:
+After some tests updating HG8012H firmware I understood that there's no "Huawei_footer" at all in partition "8", this data was in fact remains of older and bigger rootfs file systems. When one rootfs update takes place via an official firmware update, the unused space that goes from squashfs end to partition "8" end doesn't get formatted to "FF....", so we can assume that this Huawei_footer garbage is empty space like the next area is. Then we can show partition "8" structure as:
 
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/21rootfs_map3.jpg)
 
