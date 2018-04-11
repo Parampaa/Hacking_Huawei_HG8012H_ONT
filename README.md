@@ -1342,7 +1342,7 @@ Open the file 8rootfsA_Uimage_header.bin with an hexadecimal editor and search f
 ```console
 logon@logonlap:~$crc32 8rootfsA_Uimage_header.bin
 ```
-Now we reopen 8rootfsA_Uimage_header.bin and replace again the last sequence "00 00 00 00" that we added to replace "UU UU UU UUU" with the CRC32 obtained in the last command.  
+Now we reopen 8rootfsA_Uimage_header.bin and replace again the last sequence "00 00 00 00" that we added to replace "UU UU UU UU" with the CRC32 obtained in the last command.  
 
 Join  8rootfsA_Uimage_header.bin and new_squashfs.bin:
 ```console
