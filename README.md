@@ -1292,7 +1292,7 @@ And we extract the squashfs file system with binwalk:
 logon@logonlap:~$binwalk -e 8rootfsA_squashfs.bin
 ```
 
-The directory tree extracted at./8rootfsA.bin.extracted/squashfs-root is the following: (IMPORTANT: in order for binwalk to extract this type of file system we need to have installed the 'squashfs-tools' package)
+The directory tree extracted at./8rootfsA.bin.extracted/squashfs-root is the following: (IMPORTANT: in order for binwalk to extract this type of file system we need to have 'squashfs-tools' package installed in our system)
 
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/17squashfs_tree.png)
 
