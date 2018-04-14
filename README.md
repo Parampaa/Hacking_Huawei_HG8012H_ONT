@@ -1349,7 +1349,7 @@ Join  8rootfsA_Uimage_header.bin and new_squashfs.bin:
 logon@logonlap:~$cat 8rootfsA_Uimage_header.bin new_squashfs.bin > 8rootfsA_UH_SFS.bin
 ```
 
-Now we create a 8-byte sequence concatenating the output of the following two comands:
+Now we create a 8-byte sequence concatenating the output of the following two comands:  
 8rootfsA_UH_SFS.bin length reversed by 2:
 ```console
 logon@logonlap:~$printf '%08x\n' $(stat -c '%s' 8rootfsA_UH_SFS.bin) | fold -w2 | tac | tr -d "\n"; echo ""
