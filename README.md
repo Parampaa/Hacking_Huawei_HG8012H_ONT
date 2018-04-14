@@ -1349,11 +1349,19 @@ Join  8rootfsA_Uimage_header.bin and new_squashfs.bin:
 logon@logonlap:~$cat 8rootfsA_Uimage_header.bin new_squashfs.bin > 8rootfsA_UH_SFS.bin
 ```
 
+Now we create a 8-byte sequence concatenating the output of the following two comands:
+8rootfsA_UH_SFS.bin length reversed by 2:
+```console
+logon@logonlap:~$printf '%08x\n' $(stat -c '%s' 8rootfsA_UH_SFS.bin) | fold -w2 | tac | tr -d "\n"; echo ""
+```
+
 8rootfsA_UH_SFS.bin CRC32 reversed by 2:
 ```console
 logon@logonlap:~$crc32 8rootfsA_UH_SFS.bin | fold -w2 | tac | tr -d "\n"; echo ""
 ```
-We now open the file 8rootfsA_Huawei_header.bin with an hexadecimal editor and modify exactly its last 4 bytes with the output of the last command.  
+
+
+We now open the file 8rootfsA_Huawei_header.bin with an hexadecimal editor and modify exactly its last 8 bytes with the concatenated string we just created.  
 
 Join 8rootfsA_Huawei_header.bin and 8rootfsA_UH_SFS.bin into a single file:
 ```console
