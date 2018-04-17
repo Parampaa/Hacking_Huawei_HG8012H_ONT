@@ -1090,7 +1090,7 @@ After:
 <X_HW_WebUserInfoInstance InstanceID="2" UserName="telecomadmin" Password="admintelecom" UserLevel="0" Enable="1" ModifyPasswordFlag="0"/>
 </X_HW_WebUserInfo>
 ```
-In the case that the password field is a string composed of hexadecimal characters it means that what is shown is not a clear password, but the result of applying a HASH function to it. To generate a hash with the desired password we must apply the function MD5 (PASSWORD) if the length of the original field is 28 bytes or the function SHA256 (MD5 (PASSWORD)) if the length of the field is 64 bytes. The file ./fs_1/CfgFile_Backup/V300R013C10SPC128B217.xml had the passwords in HASH format with 64 bytes in length in my ONT, so the access users section in that particular file was as follows:
+In case that the password field is a string composed of hexadecimal characters it means that what is shown is not a clear password, but the result of applying a HASH function to it. To generate a hash with the desired password we must apply the function MD5 (PASSWORD) if the length of the original field is 28 bytes or the function SHA256 (MD5 (PASSWORD)) if the length of the field is 64 bytes. The file ./fs_1/CfgFile_Backup/V300R013C10SPC128B217.xml had the passwords in HASH format with 64 bytes in length in my ONT, so the access users section in that particular file was edited as follows:
 After:
 ```console
 <X_HW_WebUserInfo NumberOfInstances="2">
