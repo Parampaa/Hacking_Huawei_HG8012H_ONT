@@ -1315,6 +1315,11 @@ sleep 80
 #set catv output on
 { sleep 1; echo ""; sleep 3; echo "root"; sleep 3; echo "admin"; sleep 3; echo "su"; sleep 3; echo "set rf switch on"; sleep 3; echo "quit"; sleep 3; echo "quit"; } | console.sh
 ```
+Set exec permissions to "startup.sh":
+```console
+logon@logonlap:~$chmod +x startup.sh
+```
+
 
 The 80-second timeout is to make sure that the ONT has finished booting and synchronizing with the ISP. The next line launches a local telnet session, which connects to the Huawei WAP console and writes line by line the necessary text to activate the CATV output.
 
