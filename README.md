@@ -1379,7 +1379,7 @@ Insert our modded "8" partition in the container in the original position (offse
 ```console
 logon@logonlap:~$dd if=8rootfsA_nopad.bin bs=1 status=none of=8rootfsA_MODDED.bin conv=notrunc
 ```
-The last step of reconstruction is to merge all the partitions into a single file. As we said at the beginning that "8rootfsA.bin" was a 1:1 copy of "9rootfsB.bin", I add the first two times:
+The last step of reconstruction is to merge all the partitions into a single file. As we said at the beginning that "8rootfsA.bin" was a 1:1 copy of "9rootfsB.bin", I add the first twice:
 ```console
 logon@logonlap:~$cat 1startcode.bin 2bootA.bin 3bootB.bin 4flashcfg.bin 5slave_param.bin 6kernelA.bin 7kernelB.bin 8rootfsA_MODDED.bin 8rootfsA_MODDED.bin Afile_system_MODDED.bin Breserved.bin > fullflash_MODDED.bin
 ```
