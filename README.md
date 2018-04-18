@@ -504,7 +504,7 @@ To make a flash dump I found a specific utility for this type of flash chips cal
 
 Once the programmer-chip connection was made, I connected the programmer to the USB port and made the flash dump by executing the command:
 ```console
-logon@logonlap:~$sudo flashrom -p pickit2_spi -r flashdump.bin -c "S25FL128P ...... 0"
+logon@logonlap:~$sudo flashrom -p pickit2_spi -r flashdump.bin -c "S25FL128P......0"
 ```
 
 with the parameter "-p" we specify the programmer we are using to read the flash memory, in my case as I mentioned it is a pickit2 and with the parameter "-c" we define the chip that we are going to read.
