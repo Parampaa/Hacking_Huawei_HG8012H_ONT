@@ -1299,12 +1299,12 @@ The directory tree extracted at./8rootfsA.bin.extracted/squashfs-root is the fol
 We are going to edit the file ./8rootfsA.bin.extracted/squashfs-root/etc/rc.d/rc.start/1.sdk_init.sh, which is the last script that is executed during the boot of the device, to invoke a new script that will allow us to invoke the process that will activate the CATV output as well as execute other commands that we may need in the future, without risk of breaking the 1.sdk_init.sh file in future editions. So I insert the following two lines in the final part, just before the infinite processes:
 
 ```bash
-#echo -n "Launch user custom scripts"
-/bin/startup.sh &
+#echo -n "Activate CATV output"
+/bin/start_CATV.sh &
 ```
 ![GitHub Logo](https://github.com/logon84/Hacking_Huawei_HG8012H_ONT/blob/master/pics/18editrc.png)
 
-Then we create a file called "startup.sh" in "/bin/" and insert the following lines inside:
+Then we create a file called "start_CATV.sh" in "/bin/" and insert the following lines inside:
 
 ```bash
 #/bin/sh
@@ -1320,7 +1320,7 @@ The 80-second timeout is to make sure that the ONT has finished booting and sync
 
 Set exec permissions to "startup.sh":
 ```console
-logon@logonlap:~$chmod +x startup.sh
+logon@logonlap:~$chmod +x start_CATV.sh
 ```
 
 Once this is done, it's time to repack the squashfs system. For this we will need the mksquashfs utility with support for LZMA compression compiled in (mksquashfs belongs to the squashfs-tools package, but in ubuntu repositories this utility is not compiled with LZMA compression enabled. You can locate the binary with the LZMA compression enabled in the "Files" section of this project). We pack with the command:
