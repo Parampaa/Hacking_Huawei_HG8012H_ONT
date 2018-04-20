@@ -1318,7 +1318,7 @@ sleep 80
 
 The 80-second timeout is to make sure that the ONT has finished booting and synchronizing with the ISP. The next line launches a local telnet session, which connects to the Huawei WAP console and writes line by line the necessary text to activate the CATV output.
 
-Set exec permissions to "startup.sh":
+Set exec permissions to "start_CATV.sh":
 ```console
 logon@logonlap:~$chmod +x start_CATV.sh
 ```
