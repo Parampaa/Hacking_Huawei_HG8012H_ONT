@@ -1049,7 +1049,7 @@ DECIMAL       HEXADECIMAL     DESCRIPTION
 0             0x0             JFFS2 filesystem, little endian
 ```
 
-Bingo!. In this way Binwalk identifies the entire area as a single file system, so we can proceed to extract it and expect consistent results. We add the parameter "-e" to extract:
+Bingo!. This way Binwalk identifies the entire area as a single file system, so we can proceed to extract it and expect consistent results. We add the parameter "-e" to extract:
 
 ```console
 logon@logonlap:~$sudo binwalk -y jffs2 -e Afile_system_trim2.bin
